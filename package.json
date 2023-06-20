@@ -6,13 +6,18 @@
     "node": "18.x || 16.x"
   },
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js",
     "test": "node test.js"
   },
   "dependencies": {
+    "dotenv": "^16.3.1",
     "ejs": "^3.1.5",
-    "express": "^4.15.2"
+    "express": "^4.15.2",
+    "https": "^1.0.0",
+    "node-fetch": "^3.3.1",
+    "pg": "^8.11.0"
   },
   "devDependencies": {
     "got": "^11.3.0",

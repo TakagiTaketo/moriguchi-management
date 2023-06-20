@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+    <title>管理画面</title>
+    <script charset="utf-8" src="js/makeCalendar.js" type="text/javascript"></script>
+</head>
+
+<body>
+    <h1>管理画面</h1>
+    <div style="text-align: center;">
+        <label for="displayDate" class="displayDateLabel">表示週変更</label>
+        <input class="displayDate" id="displayDate" type="date" onchange="reserveDB_access()">
+
+        <span style="font-size: 15px;">
+            <span style="color: red;">〇</span>：空席（予約可）
+            <span style="color: blue;">×</span>：満席（予約不可）
+            <span style="color: black;">-</span>：休診<br>
+        </span>
+
+        <table class="calendar" id="calendar"></table>
+    </div>
+</body>
+
+</html>
