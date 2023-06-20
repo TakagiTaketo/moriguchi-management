@@ -184,6 +184,7 @@ function setCalendar(displayStartDate, noReserveList) {
 
     }
     // 時間部
+    let BUSY_count = 1;
     for (let i = TIME_BEGIN; i <= TIME_END; i++) {
         if (i == 12) continue;
         let a = TABLE.insertRow(-1);
@@ -194,6 +195,16 @@ function setCalendar(displayStartDate, noReserveList) {
             // 予約情報がある日は'×'
             if ((e[i] || [])[j]) {
                 cell.textContent = '×';
+                let id = i + '_' + j;
+                cell.setAttribute('onclick', `clickReserve('${id}')`);
+                let hiddenText = document.createElement('input');
+
+                hiddenText.setAttribute('hidden', true);
+                hiddenText.setAttribute('value', BUSY[BUSY_count]);
+                hiddenText.setAttribute('id', id);
+                //hiddenText.setAttribute('onclick', 'clickReserve(this.value)');
+                cell.appendChild(hiddenText);
+                BUSY_count++;
             } else {
                 cell.textContent = '◎';
             }
@@ -213,4 +224,35 @@ function setCalendar(displayStartDate, noReserveList) {
             }
         }
     }
+}
+
+// 予定がクリックされた時の処理
+function clickReserve(value1) {
+    const date = document.getElementById(value1).value.substring(0, 10);
+    const time = document.getElementById(value1).value.substring(11, 16);
+    const jsonData = JSON.stringify({
+        date: date,
+        time: time
+    });
+    fetch('/selectClickReserve', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: jsonData,
+        credentials: 'same-origin'
+    })
+        .then(res => {
+            res.json()
+                .then(json => {
+                    let name = json.name;
+                    alert('name:' + name);
+                    alert('date:' + date);
+                    alert('time:' + time);
+                })
+        })
+        .catch((err) => {
+            alert('クリックした予約情報の取得に失敗しました。');
+        })
+    alert('dateとtime:' + date + ' ' + time);
 }

@@ -1,0 +1,17 @@
+.calendar {
+    display: inline-block;
+}
+
+table {
+    border-spacing: 0;
+}
+
+th,
+td {
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    margin: 0 1ex;
+    width: 8em;
+    text-align: center;
+}
