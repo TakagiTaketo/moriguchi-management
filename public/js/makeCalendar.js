@@ -165,7 +165,9 @@ function setCalendar(displayStartDate, noReserveList) {
     for (let i = 0; i < DATE_SPAN; i++) {
         c.push(date_th2(date_add(b, i)));
     }
-    c.forEach(s => f.insertCell(-1).textContent = s);
+    c.forEach(s => {
+        f.insertCell(-1).textContent = s
+    });
     // 予約リストから'〇','×'を判断する配列を作成
     for (let f of a) {
         let h = f.getHours();
@@ -184,7 +186,6 @@ function setCalendar(displayStartDate, noReserveList) {
 
     }
     // 時間部
-    let BUSY_count = 1;
     for (let i = TIME_BEGIN; i <= TIME_END; i++) {
         if (i == 12) continue;
         let a = TABLE.insertRow(-1);
@@ -192,19 +193,43 @@ function setCalendar(displayStartDate, noReserveList) {
 
         for (j = 0; j < DATE_SPAN; j++) {
             let cell = a.insertCell(-1);
+            cell.setAttribute('name', 'calendar_cell');
+            let day = new Date();
+            let time = i + ':00';
+            switch (j) {
+                case 0:
+                    day = b;
+                    day = day.getFullYear() + '-' + (day.getMonth() + 1).toString().padStart(2, '0') + '-' + day.getDate().toString().padStart(2, '0');
+                    break;
+                case 1:
+                    day.setDate(b.getDate() + 1);
+                    day = day.getFullYear() + '-' + (day.getMonth() + 1).toString().padStart(2, '0') + '-' + day.getDate().toString().padStart(2, '0');
+                    break;
+                case 2:
+                    day.setDate(b.getDate() + 2);
+                    day = day.getFullYear() + '-' + (day.getMonth() + 1).toString().padStart(2, '0') + '-' + day.getDate().toString().padStart(2, '0');
+                    break;
+                case 3:
+                    day.setDate(b.getDate() + 3);
+                    day = day.getFullYear() + '-' + (day.getMonth() + 1).toString().padStart(2, '0') + '-' + day.getDate().toString().padStart(2, '0');
+                    break;
+                case 4:
+                    day.setDate(b.getDate() + 4);
+                    day = day.getFullYear() + '-' + (day.getMonth() + 1).toString().padStart(2, '0') + '-' + day.getDate().toString().padStart(2, '0');
+                    break;
+                case 5:
+                    day.setDate(b.getDate() + 5);
+                    day = day.getFullYear() + '-' + (day.getMonth() + 1).toString().padStart(2, '0') + '-' + day.getDate().toString().padStart(2, '0');
+                    break;
+                case 6:
+                    day.setDate(b.getDate() + 6);
+                    day = day.getFullYear() + '-' + (day.getMonth() + 1).toString().padStart(2, '0') + '-' + day.getDate().toString().padStart(2, '0');
+                    break;
+            }
+            cell.setAttribute('onclick', `changeClickColor(this);clickReserve('${time}', '${day}')`);
             // 予約情報がある日は'×'
             if ((e[i] || [])[j]) {
                 cell.textContent = '×';
-                let id = i + '_' + j;
-                cell.setAttribute('onclick', `clickReserve('${id}')`);
-                let hiddenText = document.createElement('input');
-
-                hiddenText.setAttribute('hidden', true);
-                hiddenText.setAttribute('value', BUSY[BUSY_count]);
-                hiddenText.setAttribute('id', id);
-                //hiddenText.setAttribute('onclick', 'clickReserve(this.value)');
-                cell.appendChild(hiddenText);
-                BUSY_count++;
             } else {
                 cell.textContent = '◎';
             }
@@ -226,10 +251,21 @@ function setCalendar(displayStartDate, noReserveList) {
     }
 }
 
+function changeClickColor(table_cell) {
+
+    let calendar_cell = document.getElementsByName('calendar_cell');
+
+    for (let i = 0; i < calendar_cell.length; i++) {
+        calendar_cell[i].style.background = 'none';
+    }
+
+    table_cell.style.background = 'orange';
+
+};
+
 // 予定がクリックされた時の処理
-function clickReserve(value1) {
-    const date = document.getElementById(value1).value.substring(0, 10);
-    const time = document.getElementById(value1).value.substring(11, 16);
+function clickReserve(time, date, value) {
+
     const jsonData = JSON.stringify({
         date: date,
         time: time
@@ -245,14 +281,13 @@ function clickReserve(value1) {
         .then(res => {
             res.json()
                 .then(json => {
-                    let name = json.name;
-                    alert('name:' + name);
-                    alert('date:' + date);
-                    alert('time:' + time);
+                    let name = json.username;
+                    document.getElementById('username').innerText = name;
+                    document.getElementById('reserve_date').innerText = date;
+                    document.getElementById('reserve_time').innerText = time;
                 })
         })
         .catch((err) => {
             alert('クリックした予約情報の取得に失敗しました。');
         })
-    alert('dateとtime:' + date + ' ' + time);
 }

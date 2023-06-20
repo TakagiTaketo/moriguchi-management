@@ -59,7 +59,7 @@ const selectWeekReserve = (req, res) => {
         dataList.push(tmp_data);
       }
 
-      console.log('サーバーサイドselectWeekReserve()のdataList' + JSON.stringify(dataList));
+      console.log('selectWeekReserve()のdataList' + JSON.stringify(dataList));
       res.status(200).send((JSON.stringify(dataList)));
     })
     .catch(e => console.log(e))
@@ -89,7 +89,7 @@ const selectNoReserve = (req, res) => {
         tmp_data.no_reserve_time = data.rows[i].no_reserve_time;
         dataList.push(tmp_data);
       }
-      console.log('サーバーサイドselectNoReserve()のdataList:' + JSON.stringify(dataList));
+      console.log('selectNoReserve()のdataList:' + JSON.stringify(dataList));
       res.status(200).send((JSON.stringify(dataList)));
     })
     .catch(e => console.log(e))
@@ -105,11 +105,10 @@ const selectClickReserve = (req, res) => {
   const reserve_time = data.time;
   console.log('selectClickReserve()のreserve_date:' + reserve_date);
   console.log('selectClickReserve()のreserve_time:' + reserve_time);
-  console.log(`SELECT name FROM reserves WHERE delete_flg=0 AND reserve_date='${reserve_date}' AND reserve_time='${reserve_time}';`)
   const select_query = {
     text: `SELECT name FROM reserves WHERE delete_flg=0 AND reserve_date='${reserve_date}' AND reserve_time='${reserve_time}';`
   };
-  let dataList = [];
+
   connection.query(select_query)
     .then(data => {
       let username = '';

@@ -1,3 +1,4 @@
+/* 予約テーブル */
 .calendar {
     display: inline-block;
 }
@@ -14,4 +15,31 @@ td {
     margin: 0 1ex;
     width: 8em;
     text-align: center;
+}
+
+td[name="calendar_cell"] {
+    cursor: pointer;
+}
+
+/* ボタン */
+.btn--blue {
+    color: #fff;
+    background-color: #007bff;
+    font-size: 20px;
+}
+
+.btn--blue:hover {
+    color: #fff;
+    background: lightblue;
+}
+
+.btn--radius {
+    border-radius: 100vh;
+    width: 140px;
+    height: 50px;
+}
+
+/* タイトル */
+h2 {
+    color: red;
 }
