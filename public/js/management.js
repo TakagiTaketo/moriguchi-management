@@ -64,6 +64,42 @@ function clickTorikeshi() {
     }
 }
 
+// 休診取消ボタン押下時処理
+function clickKyushinTorikeshi() {
+    let username = document.getElementById('username').innerText;
+    let reserve_date = document.getElementById('reserve_date').innerText;
+    let reserve_time = document.getElementById('reserve_time').innerText;
+    let status = document.getElementById('status').innerText;
+    // 氏名が登録されていない場合、取消はできない
+    if (status != '休診') {
+        alert('休診時間を選択してください。');
+        return false;
+    } else {
+        const jsonData = JSON.stringify({
+            username: username,
+            reserve_date: reserve_date,
+            reserve_time: reserve_time
+        });
+        fetch('/updateNoReserveTorikeshi', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: jsonData,
+            credentials: 'same-origin'
+        })
+            .then(res => {
+                alert('休診を取り消しました。');
+                location.reload();
+            })
+            .catch((err) => {
+                alert('休診の取り消しに失敗しました。' + err);
+            })
+    }
+}
+
+
+
 // 新規予約する
 function clickAddReserve() {
     let username = 'medibrain';

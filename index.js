@@ -31,8 +31,9 @@ express()
   .post('/selectWeekReserve', (req, res) => selectWeekReserve(req, res)) // 予約データ取得
   .post('/selectNoReserve', (req, res) => selectNoReserve(req, res)) // 予約不可データ取得
   .post('/selectClickReserve', (req, res) => selectClickReserve(req, res)) // クリックした予約情報の取得
-  .post('/insertNoReserve', (req, res) => insertNoReserve(req, res)) // 予約不可日の登録
+  .post('/insertNoReserve', (req, res) => insertNoReserve(req, res)) // 休診の登録
   .post('/updateReserveTorikeshi', (req, res) => updateReserveTorikeshi(req, res)) // 予約の取り消し
+  .post('/updateNoReserveTorikeshi', (req, res) => updateNoReserveTorikeshi(req, res)) // 休診の取り消し
   .post('/insertReserve', (req, res) => insertReserve(req, res)) // 新規予約の追加
   .listen(PORT, () => console.log(`Listening on ${PORT}`))
 
@@ -185,6 +186,39 @@ const updateReserveTorikeshi = (req, res) => {
   connection.query(update_query)
     .then(() => {
       let message = '予約取消完了';
+      console.log(message);
+      res.status(200).send({ message });
+    })
+    .catch(e => console.log(e))
+    .finally(() => {
+      req.connection.end;
+    });
+}
+
+// 休診の取消
+const updateNoReserveTorikeshi = (req, res) => {
+  const data = req.body;
+  const username = data.username;
+  const reserve_date = data.reserve_date;
+  const reserve_time = data.reserve_time;
+  // タイムスタンプ整形
+  let updated_at = '';
+  let date = new Date(Date.now() + ((new Date().getTimezoneOffset() + (9 * 60)) * 60 * 1000));
+  updated_at = date.getFullYear() + '/' + ('0' + (date.getMonth() + 1)).slice(-2) + '/'
+    + ('0' + date.getDate()).slice(-2) + ' ' + ('0' + date.getHours()).slice(-2) + ':'
+    + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
+
+  console.log('updateNoReserveTorikeshi()のusername:' + username);
+  console.log('updateNoReserveTorikeshi()のreserve_date:' + reserve_date);
+  console.log('updateNoReserveTorikeshi()のreserve_time:' + reserve_time);
+  console.log('updateNoReserveTorikeshi()のupdated_at:' + updated_at);
+  const update_query = {
+    text: `UPDATE no_reserves SET updated_at='${updated_at}', delete_flg=1 WHERE no_reserve_date='${reserve_date}' AND no_reserve_time='${reserve_time}';`,
+  };
+
+  connection.query(update_query)
+    .then(() => {
+      let message = '休診取消完了';
       console.log(message);
       res.status(200).send({ message });
     })
