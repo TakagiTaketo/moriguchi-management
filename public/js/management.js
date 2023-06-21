@@ -35,9 +35,9 @@ function clickTorikeshi() {
     let username = document.getElementById('username').innerText;
     let reserve_date = document.getElementById('reserve_date').innerText;
     let reserve_time = document.getElementById('reserve_time').innerText;
-
+    let status = document.getElementById('status').innerText;
     // 氏名が登録されていない場合、取消はできない
-    if (username == '' || username == undefined) {
+    if (status != '満席') {
         alert('選択している日付は予約されていません。');
         return false;
     } else {
@@ -73,10 +73,10 @@ function clickAddReserve() {
     let reserve_time = document.getElementById('reserve_time').innerText;
     let status = document.getElementById('status').innerText;
     // ステータスが空席以外の場合、予約できない
-    if (status == '満席' || status == '休診') {
+    if (status != '空席') {
         alert('空席以外は予約できません。');
         return false;
-    } else if (status == '空席') {
+    } else {
         const jsonData = JSON.stringify({
             username: username,
             birthday: birthday,
