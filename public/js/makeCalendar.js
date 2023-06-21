@@ -24,6 +24,7 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("displayDate").value = ymd;
     // 予約管理DBからカレンダーを生成
     reserveDB_access();
+
 });
 // 予約日リストを取得
 async function selectWeekReserve(displayStartDate, startTime, endTime, startDate, endDate) {
@@ -226,7 +227,7 @@ function setCalendar(displayStartDate, noReserveList) {
                     day = day.getFullYear() + '-' + (day.getMonth() + 1).toString().padStart(2, '0') + '-' + day.getDate().toString().padStart(2, '0');
                     break;
             }
-            cell.setAttribute('onclick', `changeClickColor(this);clickReserve('${time}', '${day}')`);
+
             // 予約情報がある日は'×'
             if ((e[i] || [])[j]) {
                 cell.textContent = '×';
@@ -238,6 +239,7 @@ function setCalendar(displayStartDate, noReserveList) {
             if ((n[i] || [])[j]) {
                 cell.textContent = '-';
             }
+            cell.setAttribute('onclick', `changeClickColor(this);clickReserve('${time}', '${day}', '${cell.textContent}')`);
             // 土日はハイフン
             if (j == 0 || j == 6) cell.textContent = '-';
             if (cell.textContent == "◎") {
@@ -264,7 +266,7 @@ function changeClickColor(table_cell) {
 };
 
 // 予定がクリックされた時の処理
-function clickReserve(time, date, value) {
+function clickReserve(time, date, status) {
 
     const jsonData = JSON.stringify({
         date: date,
@@ -285,6 +287,14 @@ function clickReserve(time, date, value) {
                     document.getElementById('username').innerText = name;
                     document.getElementById('reserve_date').innerText = date;
                     document.getElementById('reserve_time').innerText = time;
+                    if (status == '◎') {
+                        status = '空席';
+                    } else if (status == '×') {
+                        status = '満席'
+                    } else if (status == '-') {
+                        status = '休診'
+                    }
+                    document.getElementById('status').innerText = status;
                 })
         })
         .catch((err) => {

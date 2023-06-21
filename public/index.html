@@ -15,7 +15,8 @@
         <div>
             <p style="font-size: 20px;">日時を選択してください。</p>
             <label for="displayDate" class="displayDateLabel">表示週変更</label>
-            <input class="displayDate" id="displayDate" type="date" onchange="reserveDB_access()">
+            <input class="displayDate" id="displayDate" type="date" onchange="reserveDB_access()" min="2023-01-01"
+                max="2023-12-31">
         </div>
         <span style="font-size: 15px;">
             <span style="color: red;">◎</span>：空席（予約可）
@@ -39,11 +40,16 @@
                     <td style="background: palegreen;">開始時間</td>
                     <td><span id="reserve_time"></span></td>
                 </tr>
+                <tr>
+                    <td style="background: palegreen;">ステータス</td>
+                    <td><span id="status"></span></td>
+                </tr>
             </table>
             <div>
-                <button type="button" id="reserveButton" class="btn--blue btn--radius" style="margin: 30px;">予約</button>
-                <button type="button" id="deleteReserveButton" class="btn--blue btn--radius"
-                    style="margin: 30px;">予約取消</button>
+                <button type="button" id="reserveButton" class="btn--blue btn--radius" style="margin: 30px;"
+                    onclick="clickAddReserve()">予約</button>
+                <button type="button" id="deleteReserveButton" class="btn--blue btn--radius" style="margin: 30px;"
+                    onclick="clickTorikeshi()">予約取消</button>
                 <button type="button" id="noReserveButton" class="btn--blue btn--radius" style="margin: 30px;"
                     onclick="clickKyushin()">休診</button>
             </div>

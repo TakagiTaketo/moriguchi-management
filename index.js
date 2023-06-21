@@ -32,6 +32,8 @@ express()
   .post('/selectNoReserve', (req, res) => selectNoReserve(req, res)) // 予約不可データ取得
   .post('/selectClickReserve', (req, res) => selectClickReserve(req, res)) // クリックした予約情報の取得
   .post('/insertNoReserve', (req, res) => insertNoReserve(req, res)) // 予約不可日の登録
+  .post('/updateReserveTorikeshi', (req, res) => updateReserveTorikeshi(req, res)) // 予約の取り消し
+  .post('/insertReserve', (req, res) => insertReserve(req, res)) // 新規予約の追加
   .listen(PORT, () => console.log(`Listening on ${PORT}`))
 
 
@@ -126,13 +128,20 @@ const selectClickReserve = (req, res) => {
 
 }
 
-// 予約不可日の登録
+// 休診日の登録
 const insertNoReserve = (req, res) => {
-  console.log('来たよ');
   const data = req.body;
   const username = data.username;
   const no_reserve_date = data.no_reserve_date;
   const no_reserve_time = data.no_reserve_time;
+  // タイムスタンプ整形
+  let created_at = '';
+  let date = new Date(Date.now() + ((new Date().getTimezoneOffset() + (9 * 60)) * 60 * 1000));
+  console.log('date:' + date);
+  created_at = date.getFullYear() + '/' + ('0' + (date.getMonth() + 1)).slice(-2) + '/'
+    + ('0' + date.getDate()).slice(-2) + ' ' + ('0' + date.getHours()).slice(-2) + ':'
+    + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
+
   console.log('insertNoReserve()のusername:' + username);
   console.log('insertNoReserve()のreserve_date:' + no_reserve_date);
   console.log('insertNoReserve()のreserve_time:' + no_reserve_time);
@@ -144,6 +153,76 @@ const insertNoReserve = (req, res) => {
   connection.query(insert_query)
     .then(() => {
       let message = '予約不可日の登録完了';
+      res.status(200).send({ message });
+    })
+    .catch(e => console.log(e))
+    .finally(() => {
+      req.connection.end;
+    });
+}
+
+// 予約取消
+const updateReserveTorikeshi = (req, res) => {
+  const data = req.body;
+  const username = data.username;
+  const reserve_date = data.reserve_date;
+  const reserve_time = data.reserve_time;
+  // タイムスタンプ整形
+  let updated_at = '';
+  let date = new Date(Date.now() + ((new Date().getTimezoneOffset() + (9 * 60)) * 60 * 1000));
+  updated_at = date.getFullYear() + '/' + ('0' + (date.getMonth() + 1)).slice(-2) + '/'
+    + ('0' + date.getDate()).slice(-2) + ' ' + ('0' + date.getHours()).slice(-2) + ':'
+    + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
+
+  console.log('updateReserveTorikeshi()のusername:' + username);
+  console.log('updateReserveTorikeshi()のreserve_date:' + reserve_date);
+  console.log('updateReserveTorikeshi()のreserve_time:' + reserve_time);
+  console.log('updateReserveTorikeshi()のupdated_at:' + updated_at);
+  const update_query = {
+    text: `UPDATE reserves SET updated_at='${updated_at}', delete_flg=1 WHERE name='${username}' AND reserve_date='${reserve_date}' AND reserve_time='${reserve_time}';`,
+  };
+
+  connection.query(update_query)
+    .then(() => {
+      let message = '予約取消完了';
+      console.log(message);
+      res.status(200).send({ message });
+    })
+    .catch(e => console.log(e))
+    .finally(() => {
+      req.connection.end;
+    });
+}
+
+// 予約ボタン
+// 予約不可日の登録
+const insertReserve = (req, res) => {
+  const data = req.body;
+  const username = data.username;
+  const birthday = data.birthday;
+  const line_uid = data.line_uid;
+  const reserve_date = data.reserve_date;
+  const reserve_time = data.reserve_time;
+  // タイムスタンプ整形
+  let created_at = '';
+  let date = new Date(Date.now() + ((new Date().getTimezoneOffset() + (9 * 60)) * 60 * 1000));
+  console.log('date:' + date);
+  created_at = date.getFullYear() + '/' + ('0' + (date.getMonth() + 1)).slice(-2) + '/'
+    + ('0' + date.getDate()).slice(-2) + ' ' + ('0' + date.getHours()).slice(-2) + ':'
+    + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
+
+  console.log('insertReserve()のusername:' + username);
+  console.log('insertReserve()のreserve_date:' + reserve_date);
+  console.log('insertReserve()のreserve_time:' + reserve_time);
+  const insert_query = {
+    text: `INSERT INTO reserves(line_uid, name, reserve_date, reserve_time, created_at, delete_flg, birthday) VALUES ($1, $2, $3, $4, $5, $6, $7);`,
+    values: [line_uid, username, reserve_date, reserve_time, created_at, 0, birthday]
+  };
+
+  connection.query(insert_query)
+    .then(() => {
+      let message = '予約登録完了';
+      console.log(message);
       res.status(200).send({ message });
     })
     .catch(e => console.log(e))

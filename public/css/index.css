@@ -31,6 +31,7 @@ td[name="calendar_cell"] {
 .btn--blue:hover {
     color: #fff;
     background: lightblue;
+    cursor: pointer;
 }
 
 .btn--radius {
@@ -42,4 +43,9 @@ td[name="calendar_cell"] {
 /* タイトル */
 h1 {
     color: red;
+}
+
+/* 表示週変更 */
+.displayDate:hover {
+    cursor: pointer;
 }
