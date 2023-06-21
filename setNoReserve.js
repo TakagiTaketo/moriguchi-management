@@ -1,5 +1,7 @@
 import ClientPg from 'pg';
 const { Client } = ClientPg;
+import dotenv from "dotenv";
+const env = dotenv.config();
 
 // Postgresへの接続
 const connection = new Client({
@@ -22,21 +24,60 @@ connection.connect(function (err) {
 
 setSyukujitsu();
 
-//メッセージを送る処理
-function sendMessage(message, line_uid) {
-    console.log("message:" + message);
-    bot.pushMessage(line_uid, {  //送りたい相手のUserID
-        type: "text",
-        text: message
-    })
-
-}
-
 // 休日を休診で埋める
 function setSyukujitsu() {
-    //月を設定
+    const username = 'medibrain';
+    // タイムスタンプ整形
+    let created_at = '';
+    let date = new Date(Date.now() + ((new Date().getTimezoneOffset() + (9 * 60)) * 60 * 1000));
+    created_at = date.getFullYear() + '/' + ('0' + (date.getMonth() + 1)).slice(-2) + '/'
+        + ('0' + date.getDate()).slice(-2) + ' ' + ('0' + date.getHours()).slice(-2) + ':'
+        + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
+    let no_reserve_date = [];
+    '2023-11-23';
+    let no_reserve_time = '';
+    for (let j = 0; j < 6; j++) {
+        switch (j) {
+            case 0:
+                no_reserve_time = '10:00';
+                break;
+            case 1:
+                no_reserve_time = '11:00';
+                break;
+            case 2:
+                no_reserve_time = '13:00';
+                break;
+            case 3:
+                no_reserve_time = '14:00';
+                break;
+            case 4:
+                no_reserve_time = '15:00';
+                break;
+            case 5:
+                no_reserve_time = '16:00';
+                break;
+        }
+        const insert_query = {
+            text: `INSERT INTO no_reserves(name, no_reserve_date, no_reserve_time, created_at, delete_flg) VALUES ($1, $2, $3, $4, $5);`,
+            values: [username, no_reserve_date, no_reserve_time, created_at, 0]
+        };
+        connection.query(insert_query)
+            .then(() => {
+                console.log('登録完了：' + no_reserve_date + ' ' + no_reserve_time);
+            })
+    }
 
-    const d = new Date('2023/1/1');
+
+    /*
+    const d = new Date('2023/12/1');
+    const username = 'medibrain';
+    // タイムスタンプ整形
+    let created_at = '';
+    let date = new Date(Date.now() + ((new Date().getTimezoneOffset() + (9 * 60)) * 60 * 1000));
+    created_at = date.getFullYear() + '/' + ('0' + (date.getMonth() + 1)).slice(-2) + '/'
+        + ('0' + date.getDate()).slice(-2) + ' ' + ('0' + date.getHours()).slice(-2) + ':'
+        + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
+
     d.setDate(1);
     d.setMonth(d.getMonth());
     const youbi = d.getDay();
@@ -44,74 +85,41 @@ function setSyukujitsu() {
     d.setDate(0);
     const lastday = d.getDate();
     const yasumi = Array(lastday).fill(null).map((x, y) => [`${d.getMonth() + 1}/${(y + 1)}(${{ 0: "日", 1: "月", 2: "火", 3: "水", 4: "木", 5: "金", 6: "土" }[(y + youbi) % 7]})`, (y + youbi) % 7]).filter(x => x[1] % 6 == 0).map(x => x[0]);
-    console.log(yasumi);
-
-    /*
-    // CSVファイルを取得
-    let req = new XMLHttpRequest();
-
-    // CSVファイルへのパス
-    req.open("GET", "C:\Users\takagi_taketo\herokuApp\moriguchi-management\syukujitsu.csv", false);
-
-    // csvファイル読み込み失敗時のエラー対応
-    try {
-        req.send(null);
-    } catch (err) {
-        console.log(err);
-    }
-
-    // 配列を定義
-    let csvArray = [];
-
-    // 改行ごとに配列化
-    let lines = req.responseText.split(/\r\n|\n/);
-
-    // 1行ごとに処理
-    for (let i = 0; i < lines.length; ++i) {
-        let cells = lines[i].split(",");
-        if (cells.length != 1) {
-            csvArray.push(cells);
-        }
-    }
-
-    // コンソールに配列を出力
-    console.log(csvArray);
-
-    /*
-    for (let i = 0; i < lastday.length; i++) {
+    for (let i = 0; i < yasumi.length; i++) {
         let item = yasumi[i]
-
-    }
-*/
-    /*
-        let today = new Date('2023/06/21');
-        console.log('今日の日付:' + today);
-    
-        let year = today.getFullYear();
-        let month = today.getMonth() + 1;
-        today.setDate(today.getDate() + 3); // +3日する
-        let date_after3days = today.getDate();
-        console.log('3日後の日付:' + today);
-    
-        let reserve_date_after3days = year + '-' + month.toString().padStart(2, "0") + '-' + date_after3days.toString().padStart(2, "0");
-        console.log('3日後の日付（整形後）:' + reserve_date_after3days);
-    
-        let message = "";
-    
-        // 検索クエリ
-        const select_query = {
-            text: `SELECT line_uid, reserve_time FROM reserves WHERE reserve_date='${reserve_date_after3days}' and delete_flg=0;`
-        };
-        connection.query(select_query)
-            .then(data => {
-                for (let i = 0; i < data.rows.length; i++) {
-                    message = `予約3日前になりました。\n予約日時は\n${year}年${month}月${date_after3days}日 ${data.rows[i].reserve_time}\nです。\nよろしくお願いいたします。`;
-                    sendMessage(message, data.rows[i].line_uid);
-                }
-            })
-            .catch(e => console.log('error:' + e))
-            .finally(() => {
-                connection.end;
-            })
-            */
+        let month = item.substring(0, item.indexOf('/')).toString().padStart(2, "0");
+        let day = item.substring(item.indexOf('/') + 1, item.indexOf('(')).toString().padStart(2, "0");
+        let no_reserve_date = '2023' + '-' + month + '-' + day;
+        let no_reserve_time = '';
+        for (let j = 0; j < 6; j++) {
+            switch (j) {
+                case 0:
+                    no_reserve_time = '10:00';
+                    break;
+                case 1:
+                    no_reserve_time = '11:00';
+                    break;
+                case 2:
+                    no_reserve_time = '13:00';
+                    break;
+                case 3:
+                    no_reserve_time = '14:00';
+                    break;
+                case 4:
+                    no_reserve_time = '15:00';
+                    break;
+                case 5:
+                    no_reserve_time = '16:00';
+                    break;
+            }
+            const insert_query = {
+                text: `INSERT INTO no_reserves(name, no_reserve_date, no_reserve_time, created_at, delete_flg) VALUES ($1, $2, $3, $4, $5);`,
+                values: [username, no_reserve_date, no_reserve_time, created_at, 0]
+            };
+            connection.query(insert_query)
+                .then(() => {
+                    console.log('登録完了：' + no_reserve_date + ' ' + no_reserve_time);
+                })
+        }
+    }*/
 }

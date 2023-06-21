@@ -239,9 +239,10 @@ function setCalendar(displayStartDate, noReserveList) {
             if ((n[i] || [])[j]) {
                 cell.textContent = '-';
             }
-            cell.setAttribute('onclick', `changeClickColor(this);clickReserve('${time}', '${day}', '${cell.textContent}')`);
             // 土日はハイフン
             if (j == 0 || j == 6) cell.textContent = '-';
+            cell.setAttribute('onclick', `changeClickColor(this);clickReserve('${time}', '${day}', '${cell.textContent}')`);
+
             if (cell.textContent == "◎") {
                 cell.style.color = "red";
             } else if (cell.textContent == "×") {
