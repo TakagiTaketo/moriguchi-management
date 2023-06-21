@@ -5,6 +5,7 @@
     <title>管理画面</title>
     <script charset="utf-8" src="js/makeCalendar.js" type="text/javascript"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="js/management.js" type="text/javascript"></script>
     <link href="css/index.css" rel="stylesheet">
 </head>
 
@@ -12,12 +13,12 @@
     <h1 style="text-align: center;">管理画面</h1>
     <div style="text-align: center;">
         <div>
-            <p style="font-size: 20px;">日付を選択してください。</p>
+            <p style="font-size: 20px;">日時を選択してください。</p>
             <label for="displayDate" class="displayDateLabel">表示週変更</label>
             <input class="displayDate" id="displayDate" type="date" onchange="reserveDB_access()">
         </div>
         <span style="font-size: 15px;">
-            <span style="color: red;">〇</span>：空席（予約可）
+            <span style="color: red;">◎</span>：空席（予約可）
             <span style="color: blue;">×</span>：満席（予約不可）
             <span style="color: black;">-</span>：休診<br>
         </span>
@@ -43,8 +44,8 @@
                 <button type="button" id="reserveButton" class="btn--blue btn--radius" style="margin: 30px;">予約</button>
                 <button type="button" id="deleteReserveButton" class="btn--blue btn--radius"
                     style="margin: 30px;">予約取消</button>
-                <button type="button" id="noReserveButton" class="btn--blue btn--radius"
-                    style="margin: 30px;">休診</button>
+                <button type="button" id="noReserveButton" class="btn--blue btn--radius" style="margin: 30px;"
+                    onclick="clickKyushin()">休診</button>
             </div>
         </div>
 

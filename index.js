@@ -31,6 +31,7 @@ express()
   .post('/selectWeekReserve', (req, res) => selectWeekReserve(req, res)) // 予約データ取得
   .post('/selectNoReserve', (req, res) => selectNoReserve(req, res)) // 予約不可データ取得
   .post('/selectClickReserve', (req, res) => selectClickReserve(req, res)) // クリックした予約情報の取得
+  .post('/insertNoReserve', (req, res) => insertNoReserve(req, res)) // 予約不可日の登録
   .listen(PORT, () => console.log(`Listening on ${PORT}`))
 
 
@@ -123,4 +124,30 @@ const selectClickReserve = (req, res) => {
       req.connection.end;
     });
 
+}
+
+// 予約不可日の登録
+const insertNoReserve = (req, res) => {
+  console.log('来たよ');
+  const data = req.body;
+  const username = data.username;
+  const no_reserve_date = data.no_reserve_date;
+  const no_reserve_time = data.no_reserve_time;
+  console.log('insertNoReserve()のusername:' + username);
+  console.log('insertNoReserve()のreserve_date:' + no_reserve_date);
+  console.log('insertNoReserve()のreserve_time:' + no_reserve_time);
+  const insert_query = {
+    text: `INSERT INTO no_reserves(name, no_reserve_date, no_reserve_time, created_at, delete_flg) VALUES ($1, $2, $3, $4, $5);`,
+    values: [username, no_reserve_date, no_reserve_time, created_at, 0]
+  };
+
+  connection.query(insert_query)
+    .then(() => {
+      let message = '予約不可日の登録完了';
+      res.status(200).send({ message });
+    })
+    .catch(e => console.log(e))
+    .finally(() => {
+      req.connection.end;
+    });
 }
