@@ -262,7 +262,7 @@ function changeClickColor(table_cell) {
         calendar_cell[i].style.background = 'none';
     }
 
-    table_cell.style.background = 'orange';
+    table_cell.style.background = 'yellow';
 
 };
 
