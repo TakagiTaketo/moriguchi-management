@@ -189,67 +189,29 @@ function setCalendar(displayStartDate, noReserveList) {
     // 時間部
     for (let i = TIME_BEGIN; i <= TIME_END; i++) {
         if (i == 12) continue;
-        let a = TABLE.insertRow(-1);
-        a.appendChild(document.createElement('th')).textContent = i + ':00';
-
+        let row = TABLE.insertRow(-1);
+        row.appendChild(document.createElement('th')).textContent = i + ':00';
         for (j = 0; j < DATE_SPAN; j++) {
-            let cell = a.insertCell(-1);
+            let cell = row.insertCell(-1);
             cell.setAttribute('name', 'calendar_cell');
-            let day = new Date();
-            let time = i + ':00';
-            switch (j) {
-                case 0:
-                    day = b;
-                    day = day.getFullYear() + '-' + (day.getMonth() + 1).toString().padStart(2, '0') + '-' + day.getDate().toString().padStart(2, '0');
-                    break;
-                case 1:
-                    day.setDate(b.getDate() + 1);
-                    day = day.getFullYear() + '-' + (day.getMonth() + 1).toString().padStart(2, '0') + '-' + day.getDate().toString().padStart(2, '0');
-                    break;
-                case 2:
-                    day.setDate(b.getDate() + 2);
-                    day = day.getFullYear() + '-' + (day.getMonth() + 1).toString().padStart(2, '0') + '-' + day.getDate().toString().padStart(2, '0');
-                    break;
-                case 3:
-                    day.setDate(b.getDate() + 3);
-                    day = day.getFullYear() + '-' + (day.getMonth() + 1).toString().padStart(2, '0') + '-' + day.getDate().toString().padStart(2, '0');
-                    break;
-                case 4:
-                    day.setDate(b.getDate() + 4);
-                    day = day.getFullYear() + '-' + (day.getMonth() + 1).toString().padStart(2, '0') + '-' + day.getDate().toString().padStart(2, '0');
-                    break;
-                case 5:
-                    day.setDate(b.getDate() + 5);
-                    day = day.getFullYear() + '-' + (day.getMonth() + 1).toString().padStart(2, '0') + '-' + day.getDate().toString().padStart(2, '0');
-                    break;
-                case 6:
-                    day.setDate(b.getDate() + 6);
-                    day = day.getFullYear() + '-' + (day.getMonth() + 1).toString().padStart(2, '0') + '-' + day.getDate().toString().padStart(2, '0');
-                    break;
-            }
+            // 日付の最適化
+            let day = new Date(b);
+            day.setDate(b.getDate() + j);
+            let formattedDate = `${day.getFullYear()}-${(day.getMonth() + 1).toString().padStart(2, '0')}-${day.getDate().toString().padStart(2, '0')}`;
 
-            // 予約情報がある日は'×'
-            if ((e[i] || [])[j]) {
-                cell.textContent = '×';
-            } else {
-                cell.textContent = '◎';
-            }
-
-            // 予約不可日の場合は'-'
-            if ((n[i] || [])[j]) {
+            // 予約情報に基づくテキストと色の設定
+            if (n[i] && n[i][j]) { // 予約不可日の場合
                 cell.textContent = '-';
-            }
-            // 土日はハイフン
-            if (j == 0 || j == 6) cell.textContent = '-';
-            cell.setAttribute('onclick', `changeClickColor(this);clickReserve('${time}', '${day}', '${cell.textContent}')`);
-
-            if (cell.textContent == "◎") {
-                cell.style.color = "red";
-            } else if (cell.textContent == "×") {
-                cell.style.color = "blue";
-            } else if (cell.textContent == "-") {
                 cell.style.color = "black";
+            } else if (e[i] && e[i][j]) { // 予約済みの場合
+                cell.textContent = '×';
+                cell.style.color = "blue";
+            } else { // 予約可能な場合
+                cell.textContent = '◎';
+                cell.style.color = "red";
             }
+
+            cell.setAttribute('onclick', `changeClickColor(this);clickReserve('${i}:00', '${formattedDate}', '${cell.textContent}')`);
         }
     }
 }
@@ -268,7 +230,6 @@ function changeClickColor(table_cell) {
 
 // 予定がクリックされた時の処理
 function clickReserve(time, date, status) {
-
     const jsonData = JSON.stringify({
         date: date,
         time: time
