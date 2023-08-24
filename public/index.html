@@ -13,12 +13,12 @@
     <h1 style="text-align: center;">管理画面</h1>
     <div style="text-align: center;">
         <div>
-            <p style="font-size: 20px;">日時を選択してください。</p>
-            <label for="displayDate" class="displayDateLabel">表示週変更</label>
+            <p style="font-size: 25px;">日時を選択してください。</p>
+            <label for="displayDate" class="displayDateLabel" style="font-size: 25px;">表示週変更</label>
             <input class="displayDate" id="displayDate" type="date" onchange="reserveDB_access()" min="2023-01-01"
-                max="2023-12-31">
+                max="2023-12-31" style="height: 25px; margin-bottom: 5px;">
         </div>
-        <span style="font-size: 15px;">
+        <span style="font-size: 25px;">
             <span style="color: red;">◎</span>：空席（予約可）
             <span style="color: blue;">×</span>：満席（予約不可）
             <span style="color: black;">-</span>：休診<br>
