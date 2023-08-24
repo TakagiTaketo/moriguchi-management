@@ -3,31 +3,23 @@ let noReserveList = [];
 
 window.addEventListener("DOMContentLoaded", () => {
     //今日の日時を表示
-    var date = new Date()
-    var year = date.getFullYear()
-    var month = date.getMonth() + 1
-    var day = date.getDate()
-
-    var toTwoDigits = function (num, digit) {
-        num += ''
-        if (num.length < digit) {
-            num = '0' + num
-        }
-        return num
-    }
-
-    var yyyy = toTwoDigits(year, 4)
-    var mm = toTwoDigits(month, 2)
-    var dd = toTwoDigits(day, 2)
-    var ymd = yyyy + "-" + mm + "-" + dd;
-
-    document.getElementById("displayDate").value = ymd;
+    const date = new Date()
+    const formattedDate = formatDate(date);
+    document.getElementById("displayDate").value = formattedDate;
     // 予約管理DBからカレンダーを生成
     reserveDB_access();
-
 });
+
+// 日付を編集
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 // 予約日リストを取得
-async function selectWeekReserve(displayStartDate, startTime, endTime, startDate, endDate) {
+async function getWeekReserve(displayStartDate, startTime, endTime, startDate, endDate) {
     // jsonDataを作成
     const jsonData = JSON.stringify({
         startDate: startDate,
@@ -42,22 +34,21 @@ async function selectWeekReserve(displayStartDate, startTime, endTime, startDate
         credentials: 'same-origin'
 
     });
-    console.log('selectWeekReserveのresponse:' + res);
+    
     const json = await res.json();
-    console.log('selectWeekReserveのjson' + json);
 
-    for (var i in json) {
+    for (var item in json) {
         // 選択した週の予定の場合、配列に格納する。
-        let excelDate = new Date(json[i].reserve_date);
+        let excelDate = new Date(json[item].reserve_date);
         if (startTime <= excelDate && excelDate <= endTime) {
-            displayStartDate.push((json[i].reserve_date).toString().slice(0, 10) + 'T' + json[i].reserve_time);
+            displayStartDate.push(`${item.reserve_date.slice(0, 10)}T${item.reserve_time}`);
         }
     }
     return displayStartDate;
 }
 
 // 予約不可日リストを取得
-async function selectNoReserve(noReserveList, startDate, endDate) {
+async function getNoReserve(noReserveList, startDate, endDate) {
     // jsonDataを作成
     const jsonData = JSON.stringify({
         startDate: startDate,
@@ -71,16 +62,19 @@ async function selectNoReserve(noReserveList, startDate, endDate) {
         body: jsonData,
         credentials: 'same-origin'
     });
-    console.log('selectNoReserveのresponse:' + res);
     const json = await res.json();
-    console.log('selectNoReserveのjson' + json);
 
-    for (var i in json) {
-        noReserveList.push((json[i].no_reserve_date).toString().slice(0, 10) + 'T' + json[i].no_reserve_time);
+    for (var item in json) {
+        noReserveList.push(`${item.no_reserve_date.slice(0, 10)}T${item.no_reserve_time}`);
     }
     return true;
 }
 
+// 日付の整形
+function getFormattedDateTime(date, includeTime = false) {
+    const formattedDate = formatDate(date);
+    return includeTime ? `${formattedDate}T${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}` : formattedDate;
+}
 // カレンダー
 async function reserveDB_access() {
     // 選択した日付を取得
@@ -103,8 +97,8 @@ async function reserveDB_access() {
     let endTime = new Date(thisYear, thisMonth, thisSaturday, 23, 59, 59, 999);
 
     // 整形
-    let startDate = startTime.getFullYear() + '-' + (startTime.getMonth() + 1).toString().padStart(2, '0') + '-' + startTime.getDate().toString().padStart(2, '0');
-    let endDate = endTime.getFullYear() + '-' + (endTime.getMonth() + 1).toString().padStart(2, '0') + '-' + endTime.getDate().toString().padStart(2, '0');
+    let startDate = getFormattedDateTime(startTime);
+    let endDate = getFormattedDateTime(endTime);
     console.log('startTime:' + startTime);
     console.log('endTime:' + endTime);
     console.log('startDate:' + startDate);
@@ -112,10 +106,10 @@ async function reserveDB_access() {
 
     displayStartDate = [];
     noReserveList = [];
-    displayStartDate.push(startDate + 'T00:00');
+    displayStartDate.push(getFormattedDateTime(startTime, true));
 
-    await selectWeekReserve(displayStartDate, startTime, endTime, startDate, endDate);
-    await selectNoReserve(noReserveList, startDate, endDate);
+    await getWeekReserve(displayStartDate, startTime, endTime, startDate, endDate);
+    await getNoReserve(noReserveList, startDate, endDate);
     setCalendar(displayStartDate, noReserveList);
 }
 // 予約日・予約不可日リストからカレンダーを生成する。
