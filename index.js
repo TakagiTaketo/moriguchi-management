@@ -41,11 +41,8 @@ express()
 // 予約カレンダー取得
 const selectWeekReserve = (req, res) => {
   const data = req.body;
-  console.log('data:' + data);
   const startDate = data.startDate;
   const endDate = data.endDate;
-  console.log('selectWeekREserve()のstartDate:' + startDate);
-  console.log('selectWeekREserve()のendDate:' + endDate);
   // SELECT文
   const select_query = {
     text: `SELECT name, reserve_date, reserve_time FROM reserves WHERE delete_flg=0 AND reserve_date BETWEEN '${startDate}' AND '${endDate}' ORDER BY reserve_date ASC, reserve_time ASC;`
@@ -63,7 +60,6 @@ const selectWeekReserve = (req, res) => {
         dataList.push(tmp_data);
       }
 
-      console.log('selectWeekReserve()のdataList' + JSON.stringify(dataList));
       res.status(200).send((JSON.stringify(dataList)));
     })
     .catch(e => console.log(e))
@@ -77,9 +73,6 @@ const selectNoReserve = (req, res) => {
   const data = req.body;
   const startDate = data.startDate;
   const endDate = data.endDate;
-  console.log('selectNoReserve()のstartDate:' + startDate);
-  console.log('selectNoReserve()のendDate:' + endDate);
-
   const select_query = {
     text: `SELECT name, no_reserve_date, no_reserve_time FROM no_reserves WHERE delete_flg=0 AND no_reserve_date BETWEEN '${startDate}' AND '${endDate}' ORDER BY no_reserve_date ASC, no_reserve_time ASC;`
   };
@@ -93,7 +86,6 @@ const selectNoReserve = (req, res) => {
         tmp_data.no_reserve_time = data.rows[i].no_reserve_time;
         dataList.push(tmp_data);
       }
-      console.log('selectNoReserve()のdataList:' + JSON.stringify(dataList));
       res.status(200).send((JSON.stringify(dataList)));
     })
     .catch(e => console.log(e))
@@ -107,8 +99,6 @@ const selectClickReserve = (req, res) => {
   const data = req.body;
   const reserve_date = data.date;
   const reserve_time = data.time;
-  console.log('selectClickReserve()のreserve_date:' + reserve_date);
-  console.log('selectClickReserve()のreserve_time:' + reserve_time);
   const select_query = {
     text: `SELECT name FROM reserves WHERE delete_flg=0 AND reserve_date='${reserve_date}' AND reserve_time='${reserve_time}';`
   };
@@ -119,7 +109,6 @@ const selectClickReserve = (req, res) => {
       if (data.rows.length > 0) {
         username = data.rows[0].name;
       }
-      console.log('selectClickReserve()のusername:' + username);
       res.status(200).send({ username });
     })
     .catch(e => console.log(e))
@@ -138,14 +127,10 @@ const insertNoReserve = (req, res) => {
   // タイムスタンプ整形
   let created_at = '';
   let date = new Date(Date.now() + ((new Date().getTimezoneOffset() + (9 * 60)) * 60 * 1000));
-  console.log('date:' + date);
   created_at = date.getFullYear() + '/' + ('0' + (date.getMonth() + 1)).slice(-2) + '/'
     + ('0' + date.getDate()).slice(-2) + ' ' + ('0' + date.getHours()).slice(-2) + ':'
     + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
 
-  console.log('insertNoReserve()のusername:' + username);
-  console.log('insertNoReserve()のreserve_date:' + no_reserve_date);
-  console.log('insertNoReserve()のreserve_time:' + no_reserve_time);
   const insert_query = {
     text: `INSERT INTO no_reserves(name, no_reserve_date, no_reserve_time, created_at, delete_flg) VALUES ($1, $2, $3, $4, $5);`,
     values: [username, no_reserve_date, no_reserve_time, created_at, 0]
@@ -175,10 +160,6 @@ const updateReserveTorikeshi = (req, res) => {
     + ('0' + date.getDate()).slice(-2) + ' ' + ('0' + date.getHours()).slice(-2) + ':'
     + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
 
-  console.log('updateReserveTorikeshi()のusername:' + username);
-  console.log('updateReserveTorikeshi()のreserve_date:' + reserve_date);
-  console.log('updateReserveTorikeshi()のreserve_time:' + reserve_time);
-  console.log('updateReserveTorikeshi()のupdated_at:' + updated_at);
   const update_query = {
     text: `UPDATE reserves SET updated_at='${updated_at}', delete_flg=1 WHERE name='${username}' AND reserve_date='${reserve_date}' AND reserve_time='${reserve_time}';`,
   };
@@ -208,10 +189,6 @@ const updateNoReserveTorikeshi = (req, res) => {
     + ('0' + date.getDate()).slice(-2) + ' ' + ('0' + date.getHours()).slice(-2) + ':'
     + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
 
-  console.log('updateNoReserveTorikeshi()のusername:' + username);
-  console.log('updateNoReserveTorikeshi()のreserve_date:' + reserve_date);
-  console.log('updateNoReserveTorikeshi()のreserve_time:' + reserve_time);
-  console.log('updateNoReserveTorikeshi()のupdated_at:' + updated_at);
   const update_query = {
     text: `UPDATE no_reserves SET updated_at='${updated_at}', delete_flg=1 WHERE no_reserve_date='${reserve_date}' AND no_reserve_time='${reserve_time}';`,
   };
@@ -240,14 +217,10 @@ const insertReserve = (req, res) => {
   // タイムスタンプ整形
   let created_at = '';
   let date = new Date(Date.now() + ((new Date().getTimezoneOffset() + (9 * 60)) * 60 * 1000));
-  console.log('date:' + date);
   created_at = date.getFullYear() + '/' + ('0' + (date.getMonth() + 1)).slice(-2) + '/'
     + ('0' + date.getDate()).slice(-2) + ' ' + ('0' + date.getHours()).slice(-2) + ':'
     + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
 
-  console.log('insertReserve()のusername:' + username);
-  console.log('insertReserve()のreserve_date:' + reserve_date);
-  console.log('insertReserve()のreserve_time:' + reserve_time);
   const insert_query = {
     text: `INSERT INTO reserves(line_uid, name, reserve_date, reserve_time, created_at, delete_flg, birthday) VALUES ($1, $2, $3, $4, $5, $6, $7);`,
     values: [line_uid, username, reserve_date, reserve_time, created_at, 0, birthday]

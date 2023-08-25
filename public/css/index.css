@@ -21,6 +21,9 @@ td[name="calendar_cell"] {
     cursor: pointer;
 }
 
+#calendar tr {
+    cursor: pointer;
+}
 /* ボタン */
 .btn--blue {
     color: #fff;

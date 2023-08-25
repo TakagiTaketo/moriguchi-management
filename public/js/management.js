@@ -23,24 +23,45 @@ function postFetch(url, jsonData, successMessage, errorMessage) {
 
 // 休診ボタン押下時処理
 function clickKyushin() {
+    let selectedDate = localStorage.getItem("selectedDate");
     const username = 'medibrain';
-    const no_reserve_date = document.getElementById('reserve_date').innerText;
-    const no_reserve_time = document.getElementById('reserve_time').innerText;
-    const status = document.getElementById('status').innerText;
-    
-    if (status != '空席') {
-        alert('空席以外は休診日に指定できません。');
+    if(selectedDate) {
+       // 10時～16時の時間帯で休診の処理を行う
+        for(let hour = 10; hour <= 16; hour++) {
+            if (hour == 12) continue;
+            // 休診日を登録する
+            postFetch(
+                '/insertNoReserve', 
+                JSON.stringify({
+                    username: username,
+                    no_reserve_date: selectedDate,
+                    no_reserve_time: `${hour}:00`
+                }), 
+                '休診日を登録しました。', 
+                '休診日の登録に失敗しました。'
+            );
+        }
+
+        localStorage.removeItem("selectedDate");  // ローカルストレージから日付を削除
     } else {
-        postFetch(
-            '/insertNoReserve', 
-            JSON.stringify({
-                username: username,
-                no_reserve_date: no_reserve_date,
-                no_reserve_time: no_reserve_time
-            }), 
-            '休診日を登録しました。', 
-            '休診日の登録に失敗しました。'
-        );
+        const no_reserve_date = document.getElementById('reserve_date').innerText;
+        const no_reserve_time = document.getElementById('reserve_time').innerText;
+        const status = document.getElementById('status').innerText;
+        
+        if (status != '空席') {
+            alert('空席以外は休診日に指定できません。');
+        } else {
+            postFetch(
+                '/insertNoReserve', 
+                JSON.stringify({
+                    username: username,
+                    no_reserve_date: no_reserve_date,
+                    no_reserve_time: no_reserve_time
+                }), 
+                '休診日を登録しました。', 
+                '休診日の登録に失敗しました。'
+            );
+        }
     }
 }
 

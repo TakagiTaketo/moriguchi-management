@@ -1,6 +1,6 @@
 let displayStartDate = [];
 let noReserveList = [];
-
+const date_span = 7;
 window.addEventListener("DOMContentLoaded", () => {
     //今日の日時を表示
     const date = new Date()
@@ -129,7 +129,6 @@ function setCalendar(displayStartDate, noReserveList) {
     // 定数設定
     const
         table = document.getElementById('calendar'),
-        date_span = 7,
         time_begin = 10,
         time_end = 16,
         week_name = ['日', '月', '火', '水', '木', '金', '土'],
@@ -159,8 +158,59 @@ function setCalendar(displayStartDate, noReserveList) {
     for (let i = 0; i < date_span; i++) {
         c.push(date_th2(date_add(b, i)));
     }
+    /*
     c.forEach(s => {
         f.insertCell(-1).textContent = s
+    });
+    */
+   // ヘッダーのtdにイベントを追加
+    c.forEach((s, index) => {
+        let cell = f.insertCell(-1);
+        cell.textContent = s;
+
+        // ヘッダー部分のtdに固有のIDを設定
+        cell.id = "header-" + index;
+        cell.addEventListener("click", function(e) {
+            if(e.target.id == "header-0") return;
+            // 他のセルの色をリセット
+            resetHeaderColors();
+            // セルの色をオレンジに変更
+            e.target.style.backgroundColor = "orange";
+
+            // クリックされたヘッダーの日付部分を取得
+            let clickedDate = e.target.textContent.split('\n')[0]; 
+            let inputDate = document.getElementById("displayDate").value;
+            let year = inputDate.split('-')[0];
+            // clickedDateを"yyyy-mm-dd"形式に変換
+            let dateObj = new Date(clickedDate);
+            let formattedDate = year + '-' + String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + String(dateObj.getDate()).padStart(2, '0');
+            // 指定された項目に値を設定
+            document.getElementById("username").innerText = "medibrain";
+            document.getElementById("reserve_date").innerText = formattedDate;
+            document.getElementById("reserve_time").innerText = "-";
+            document.getElementById("status").innerText = "-";
+            
+            // クリックされたヘッダーセルの列インデックスを取得
+            let columnIndex = e.target.cellIndex;
+            let rows = e.target.closest('table').rows;
+            let hasReservedCell = false;
+
+            // クリックされたヘッダーセルの列の各セルをループ処理
+            for(let i = 1; i < rows.length; i++) {  // ヘッダー行をスキップするため、iは1から開始
+                let cellText = rows[i].cells[columnIndex].innerText;
+                if(cellText === "×") {
+                    hasReservedCell = true;
+                    break;  // "×" が見つかったらループを抜ける
+                }
+            }
+
+            // もし "×" を含むセルがあればアラートを表示
+            if(hasReservedCell) {
+                alert("選択した日付に満席のセルがある場合、一括休診はできません。");
+                return;
+            }
+            localStorage.setItem("selectedDate", formattedDate); // クリックされた日付をlocalStorageに保存
+        });
     });
     // 予約リストから'〇','×'を判断する配列を作成
     for (let f of a) {
@@ -208,11 +258,28 @@ function setCalendar(displayStartDate, noReserveList) {
         }
     }
 }
-
+// すべてのヘッダーtd要素の色をリセットする関数
+function resetHeaderColors() {
+    let headers = document.querySelectorAll('[id^="header-"]');
+    headers.forEach(header => {
+        header.style.backgroundColor = ""; // 背景色をデフォルトに戻す
+    });
+    let cells = Array.from(document.getElementsByName('calendar_cell'));
+    cells.forEach(cell => {
+        cell.style.backgroundColor = ""; // 背景色をデフォルトに戻す
+    });
+}
+// 他のtdセルがクリックされたときのイベント
+document.querySelectorAll("td").forEach(cell => {
+    cell.addEventListener("click", function(e) {
+        resetHeaderColors(); // ヘッダーセルの色をリセット
+    });
+});
 function changeClickColor(table_cell) {
 
     let calendar_cell = document.getElementsByName('calendar_cell');
-
+    resetHeaderColors();
+    localStorage.removeItem("selectedDate");  // ローカルストレージから日付を削除
     for (let i = 0; i < calendar_cell.length; i++) {
         calendar_cell[i].style.background = 'none';
     }
@@ -256,3 +323,4 @@ function clickReserve(time, date, status) {
             alert('クリックした予約情報の取得に失敗しました。');
         })
 }
+
